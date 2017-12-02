@@ -13,17 +13,16 @@ object Scrapper extends App {
   val token = "Mjk1NTc3MzEyNjY4MTU1OTE2.C8ptoQ.dMO6C384E8bNwRxHhFwXvnVuhr4"
   val file = "corpus.txt"
 
-  val client = new ClientBuilder().withToken(token).login()
-
-  Thread.sleep(1000)
+  val client =  new ClientBuilder().withToken(token).login()
+  Thread.sleep(3000)
   println(client.getGuilds)
   client
     .getGuildByID(265467993507627009L)
     .getChannels
     .toList
       .foreach(x => {
+        Thread.sleep(3000)
         println(x.getName)
-        Thread.sleep(1000)
         val messages = new util.ArrayList[String]()
         val history : Iterator[IMessage] = x.getFullMessageHistory.iterator
         while(history.hasNext) {
@@ -32,8 +31,9 @@ object Scrapper extends App {
           messages.add(formattedMessage)
         }
         util.Collections.reverse(messages)
-        val writer = new BufferedWriter(new FileWriter(file, true))
-        messages.foreach(line => writer.write(line + '\n'))
+        val writer = new BufferedWriter(new FileWriter(file, false))
+        messages.foreach(line => writer.write(line.replace("\n", " ") + "\n"))
+        writer.write('\n')
         writer.flush()
         writer.close()
       })
