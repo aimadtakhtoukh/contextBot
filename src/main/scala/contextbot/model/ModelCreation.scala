@@ -21,6 +21,7 @@ object ModelCreation extends App {
 
   val conf: SparkConf = new SparkConf().setMaster("local[4]").setAppName("TrainingBot")
   val sc = new SparkContext(conf)
+  val vectorOutputFile = "vectors.txt"
 
   val input: RDD[Seq[String]] = sc.textFile("corpus-stem.txt").map(line => line.split(" ").toSeq)
 
@@ -32,14 +33,12 @@ object ModelCreation extends App {
 
   val model: Word2VecModel = word2Vec.fit(input)
   //model.save(sc, "model/word2vecForDiscordBot")
-
-  val file = "vectors.txt"
-  val writer = new BufferedWriter(new FileWriter(file, false))
-  model.getVectors.keys.foreach(
-    key => writer.write(s"$key  ${model.getVectors(key).mkString("[", ", ", "]")}\n")
-  )
-  writer.flush()
-  writer.close()
+  new FileWriter(vectorOutputFile, false) {
+    model.getVectors.keys.foreach(
+      key => write(s"$key  ${model.getVectors(key).mkString("[", ", ", "]")}\n")
+    )
+    close()
+  }
 
   val show = showSynonyms(model)(_: String)
 
@@ -59,9 +58,10 @@ object ModelCreation extends App {
 
 
   //model.getVectors.keys.foreach(println)
+  /*
   val array : Array[Double] = model.getVectors("aimad").map(_.toDouble)
-
   val vector : Vector = Vectors.dense(array)
   println(vector)
+  */
 
 }

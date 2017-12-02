@@ -10,7 +10,7 @@ import org.apache.spark.rdd.RDD
 import scala.io.Source
 
 object DecisionTree extends App {
-  val conf : SparkConf = new SparkConf().setMaster("local[1]").setAppName("DecisionTree")
+  val conf : SparkConf = new SparkConf().setMaster("local[4]").setAppName("DecisionTree")
   val sc : SparkContext = new SparkContext(conf)
 
   val fileName = "vectors.txt"
@@ -30,7 +30,7 @@ object DecisionTree extends App {
       )
   }
 
-  map.keys.foreach(key => println(s"'$key'"))
+  //map.keys.foreach(key => println(s"'$key'"))
 
   val sentence1 : Array[Double] = getConcatenedVectors("edwin je suis dispo demain")
   val point1 : LabeledPoint = new LabeledPoint(1.0, Vectors.dense(sentence1))
@@ -40,9 +40,9 @@ object DecisionTree extends App {
 
   val rdd : RDD[LabeledPoint] =
     sc.parallelize(
-      (1 to 1000).map(_ => point1 :: point2 :: Nil).reduce(_ ::: _)
+      //(1 to 1000).map(_ => point1 :: point2 :: Nil).reduce(_ ::: _)
+      point1 :: point2 :: Nil
     )
-
 
   val boostingStrategy = BoostingStrategy.defaultParams("Classification")
   boostingStrategy.numIterations = 3
@@ -54,7 +54,6 @@ object DecisionTree extends App {
   val tree = GradientBoostedTrees.train(rdd, boostingStrategy)
 
   def evaluate(array : Array[Double]) = {
-    //tree.evaluateEachIteration(sc.parallelize(array :: Nil), LogLoss)
     tree.predict(Vectors.dense(array))
   }
 

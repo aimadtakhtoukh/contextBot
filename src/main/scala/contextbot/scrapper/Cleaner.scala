@@ -7,21 +7,20 @@ import scala.io.Source
 import contextbot.utils.Stemmer
 
 object Cleaner extends App {
+  val sourceFile = "corpus.txt"
+  val targetFile = "corpus-stem.txt"
 
-  def cleanInput(input : String) : String = {
-    println(input)
-    val result = input.toLowerCase.replaceAll("([\\(\\)\\/\\\\,!?\\.])", " $1 ")
-    println(result)
-    result
+  def cleanInput =
+    (entry : String) =>
+      entry
+        .toLowerCase
+        .replaceAll("([\\(\\)\\/\\\\,!?\\.])", " $1 ")
+
+  new FileWriter(targetFile, false) {
+    Source.fromFile(sourceFile).mkString
+      .split("\n")
+      .map(cleanInput)
+      .foreach(line => write(line + "\n") + " ")
+    close()
   }
-
-  val file = "corpus-stem.txt"
-  val writer = new BufferedWriter(new FileWriter(file, false))
-  Source.fromFile("corpus.txt").mkString
-    .split("\n")
-    .map(cleanInput)
-    //.map(Stemmer.stemText).map(_.mkString(" "))
-    .foreach(line => writer.write(line + "\n") + " ")
-  writer.flush()
-  writer.close()
 }
